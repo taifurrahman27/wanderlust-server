@@ -24,6 +24,8 @@ const client = new MongoClient(uri, {
 async function run() {
     try {
 
+        await client.connect();
+
         const db = client.db("wanderlust");
         const destinationCollection = db.collection("destinations");
 
@@ -50,6 +52,25 @@ async function run() {
             res.json(result);
         });
 
+        app.patch("/destination/:id", async (req, res) => {
+            try {
+                const { id } = req.params;
+                const updatedData = req.body;
+
+                const result = await destinationCollection.updateOne(
+                    { _id: new ObjectId(id) },
+                    { $set: updatedData }
+                );
+
+                res.status(200).json(result);
+            } catch (error) {
+                console.error(error);
+                res.status(500).json({
+                    message: "Update failed",
+                    error: error.message,
+                });
+            }
+        });
 
 
 
